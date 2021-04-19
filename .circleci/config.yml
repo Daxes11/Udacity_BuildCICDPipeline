@@ -112,7 +112,6 @@ jobs:
           name: Scan Front-end
           command: |
               cd frontend
-          #npm audit fix --audit-level=critical --force
               npm audit --audit-level=critical
       - slack/status:
           fail_only: true
@@ -133,7 +132,6 @@ jobs:
           name: Scan Back-end
           command: |
               cd backend
-      #        npm audit fix --audit-level=critical --force
               npm audit --audit-level=critical
       - slack/status:
           fail_only: true
