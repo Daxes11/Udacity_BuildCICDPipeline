@@ -67,7 +67,7 @@ jobs:
 
   test-frontend:
     docker:
-      circleci/node:13.8.0
+      - image: circleci/node:stretch
     steps:
       # Checkout code from git
       # Restore from cache
@@ -83,7 +83,7 @@ jobs:
             npm run test
   test-backend:
     docker:
-      circleci/node:13.8.0
+      - image: circleci/node:stretch
     steps:
       - checkout
       - restore_cache:
