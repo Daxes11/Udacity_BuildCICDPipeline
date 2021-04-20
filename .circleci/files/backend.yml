@@ -35,3 +35,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub backend-${ID}
+
+Outputs:
+  PublicDNS:                                    
+    Description: EC2 instance public DNS name   
+    Value: !GetAtt EC2Instance.PublicDnsName

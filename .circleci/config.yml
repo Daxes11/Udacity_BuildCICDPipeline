@@ -112,18 +112,11 @@ jobs:
           name: Scan Front-end
           command: |
               cd frontend
+              npm audit fix --audit-level=critical --force
               npm audit --audit-level=critical
       - slack/status:
           fail_only: true
           mentions: "circleci"
-      - slack/notify:
-          color: "#42e2f4"
-          mentions: "yemiwebby,"
-          message: A custom message to notify the channel about the latest build
-
-      # Checkout code from git
-      # Restore from cache
-      # Your job code here
 
   scan-backend:
     docker:
@@ -136,53 +129,52 @@ jobs:
           name: Scan Back-end
           command: |
               cd backend
+              npm audit fix --audit-level=critical --force
               npm audit --audit-level=critical
       - slack/status:
           fail_only: true
           mentions: "circleci"
-      - slack/notify:
-          color: "#42e2f4"
-          mentions: "yemiwebby,"
-          message: A custom message to notify the channel about the latest build
 
+  deploy-infrastructure:
+    docker:
+      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
+    steps:
       # Checkout code from git
-      # Restore from cache
-      # Your job code here
-
-#  deploy-infrastructure:
-#    docker:
-#      # Docker image here that supports AWS CLI
-#    steps:
-#      # Checkout code from git
-#      - run:
-#          name: Ensure back-end infrastructure exists
-#          command: |
-#            aws cloudformation deploy \
-#              --template-file .circleci/files/backend.yml \
-#              #--tags project=your-tag \
-#              # --stack-name "your back-end stack name with workflow id" \
-#              # --parameter-overrides ID="your workflow id"  
-#              exit 1
-#      - run:
-#          name: Ensure front-end infrastructure exist
-#          command: |
-#            aws cloudformation deploy \
-#              --template-file .circleci/files/frontend.yml \
-#              #--tags project=your-tag \
-#              # --stack-name "your front-end stack name with workflow id" \
-#              # --parameter-overrides ID="your workflow id"  
-#              exit 1
+      - checkout
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --tags project=UdaPeopleProject \
+              --stack-name "UdaPeopleProjectBackend-g7gmwh5j857fqvb4sd" \
+              --parameter-overrides ID="g7gmwh5j857fqvb4sd" 
+          command: |
+            aws cloudformation describe-stacks \
+              --stack-name "UdaPeopleProjectBackend-g7gmwh5j857fqvb4sd" \
+              --query "Stacks[0].Outputs[?OutputKey=='PublicDNS'].OutputValue" --output text >> $PublicDNS
+          command: |
+            curl -H "Content-Type: text/plain" -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request PUT --data "$PublicDNS" https://api.memstash.io/values/PublicDNS
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --tags project=UdaPeopleProject \
+              --stack-name "UdaPeopleProjectFrontend-g7gmwh5j857fqvb4sd" \
+              --parameter-overrides ID="g7gmwh5j857fqvb4sd"  
 #      - run:
 #          name: Add back-end ip to ansible inventory
 #          command: |
 #            # Your code here
 #            exit 1
-#      - persist_to_workspace:
-#          root: ~/
-#          paths:
-#            - project/.circleci/ansible/inventory.txt
-#      # Here's where you will add some code to rollback on failure      
-#
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt
+      # Here's where you will add some code to rollback on failure      
+
 #  configure-infrastructure:
 #    docker:
 #      # Docker image here that supports Ansible
@@ -328,11 +320,11 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
-#      - deploy-infrastructure:
-#          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-#          filters:
-#            branches:
-#              only: [test-feature-branch]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [test-feature-branch]
 #      - configure-infrastructure:
 #          requires: [deploy-infrastructure]
 #      - run-migrations:
