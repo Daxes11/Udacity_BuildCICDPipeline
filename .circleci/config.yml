@@ -150,10 +150,10 @@ jobs:
               --tags project=UdaPeopleProject \
               --stack-name "UdaPeopleProjectBackend-g7gmwh5j857fqvb4sd" \
               --parameter-overrides ID="g7gmwh5j857fqvb4sd" 
-            aws cloudformation describe-stacks \
-              --stack-name "UdaPeopleProjectBackend-g7gmwh5j857fqvb4sd" \
-              --query "Stacks[0].Outputs[?OutputKey=='PublicDNS'].OutputValue" --output text >> $PublicDNS
-            curl -H "Content-Type: text/plain" -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request PUT --data "$PublicDNS" https://api.memstash.io/values/PublicDNS
+#            aws cloudformation describe-stacks \
+#              --stack-name "UdaPeopleProjectBackend-g7gmwh5j857fqvb4sd" \
+#              --query "Stacks[0].Outputs[?OutputKey=='PublicDNS'].OutputValue" --output text >> $PublicDNS
+#            curl -H "Content-Type: text/plain" -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request PUT --data "$PublicDNS" https://api.memstash.io/values/PublicDNS
       - run:
           name: Ensure front-end infrastructure exist
           command: |
