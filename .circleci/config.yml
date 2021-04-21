@@ -142,7 +142,7 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      - apk add tar
+      - run: apk add tar
       - run:
           name: Ensure back-end infrastructure exists
           command: |
