@@ -169,7 +169,7 @@ jobs:
             echo $PublicDNS >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
 #curl -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request GET https://api.memstash.io/values/PublicDNS
-      - run: yum install tar -y
+      - run: yum install tar gzip -y
       - persist_to_workspace:
           root: ~/
           paths:
