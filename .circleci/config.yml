@@ -140,7 +140,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=UdaPeopleProject \
-              --stack-name "UdaPeopleProjectBackend-g7gmwh5j857fqvb4sd" \
+              --stack-name "UdaPeopleProjectBackend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" 
             PublicDNS=$(aws cloudformation describe-stacks \
               --stack-name "UdaPeopleProjectBackend-${CIRCLE_WORKFLOW_ID:0:7}" \
