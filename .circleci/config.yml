@@ -72,10 +72,6 @@ jobs:
     docker:
       - image: circleci/node:stretch
     steps:
-      # Checkout code from git
-      # Restore from cache
-      # Your job code here
-
       - checkout
       - restore_cache:
           keys: [frontend-build]
@@ -85,6 +81,7 @@ jobs:
             cd frontend
             npm install oauth-sign
             npm run test
+
   test-backend:
     docker:
       - image: circleci/node:stretch
@@ -97,9 +94,6 @@ jobs:
           command: |
               cd backend
               npm run test
-      # Checkout code from git
-      # Restore from cache
-      # Your job code here
             
   scan-frontend:
     docker:
@@ -137,10 +131,8 @@ jobs:
 
   deploy-infrastructure:
     docker:
-      # Docker image here that supports AWS CLI
       - image: amazon/aws-cli
     steps:
-      # Checkout code from git
       - checkout
       - run:
           name: Ensure back-end infrastructure exists
@@ -151,24 +143,24 @@ jobs:
               --stack-name "UdaPeopleProjectBackend-g7gmwh5j857fqvb4sd" \
               --parameter-overrides ID="g7gmwh5j857fqvb4sd" 
             PublicDNS=$(aws cloudformation describe-stacks \
-              --stack-name "UdaPeopleProjectBackend-g7gmwh5j857fqvb4sd" \
+              --stack-name "UdaPeopleProjectBackend-${CIRCLE_WORKFLOW_ID}" \
               --query "Stacks[0].Outputs[?OutputKey=='PublicDNS'].OutputValue" --output text)
             curl -H "Content-Type: text/plain" -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request PUT --data "$PublicDNS" https://api.memstash.io/values/PublicDNS
-#      - run:
-#          name: Ensure front-end infrastructure exist
-#          command: |
-#            aws cloudformation deploy \
-#              --template-file .circleci/files/frontend.yml \
-#              --tags project=UdaPeopleProject \
-#              --stack-name "UdaPeopleProjectFrontend-g7gmwh5j857fqvb4sd" \
-#              --parameter-overrides ID="g7gmwh5j857fqvb4sd"  
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --tags project=UdaPeopleProject \
+              --stack-name "UdaPeopleProjectFrontend-${CIRCLE_WORKFLOW_ID}" \
+              --parameter-overrides ID="g7gmwh5j857fqvb4sd"  
       - run:
           name: Add back-end ip to ansible inventory
           command: |
             echo "[all]" >> .circleci/ansible/inventory.txt
+            PublicDNS=$(curl -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request GET https://api.memstash.io/values/PublicDNS)
             echo $PublicDNS >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
-#curl -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request GET https://api.memstash.io/values/PublicDNS
       - run: yum install tar gzip -y
       - persist_to_workspace:
           root: ~/
