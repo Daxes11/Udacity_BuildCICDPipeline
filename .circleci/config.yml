@@ -202,12 +202,14 @@ jobs:
             echo $TYPEORM_ENTITIES
             echo $TYPEORM_HOST
             echo $TYPEORM_PORT
+            echo $TYPEORM_DATABASE
           environment:
             ENVIRONMENT: production
             TYPEORM_CONNECTION: postgres
             TYPEORM_ENTITIES: ./src/modules/domain/**/*.entity.ts
             TYPEORM_HOST: udapeopleprod.ceoufwkkeobm.us-east-1.rds.amazonaws.com
-            TYPEORM_PORT: 5532
+            TYPEORM_PORT: 5432
+            TYPEORM_DATABASE: udapeopleprod
 
       # Here's where you will add some code to rollback on failure      
 
