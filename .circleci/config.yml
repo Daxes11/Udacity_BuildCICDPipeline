@@ -152,12 +152,11 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --tags project=UdaPeopleProject \
-              --stack-name "UdaPeopleProjectFrontend-${CIRCLE_WORKFLOW_ID}" \
+              --stack-name "UdaPeopleProjectFrontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            echo "[all]" >> .circleci/ansible/inventory.txt
             PublicDNS=$(curl -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request GET https://api.memstash.io/values/PublicDNS)
             echo $PublicDNS >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
@@ -166,44 +165,73 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
+#      # Here's where you will add some code to rollback on failure   
+#      - run:
+#          name: Upload Failed Tests
+#          name: on error
+#          command: echo "Hello Error!"
+#          command: curl --data fail_tests.log http://example.com/error_logs
+#          when: on_fail   
+
+  configure-infrastructure:
+    docker:
+      # Docker image here that supports Ansible
+      - image: python:3.9.4-alpine3.13
+    steps:
+      # Checkout code from git
+      # Add ssh keys with fingerprint
+      # attach workspace
+      - checkout
+      - attach_workspace:
+          at:
+            - ~/
+      - add_ssh_keys:
+          fingerprints: ["99:1b:da:1d:0e:9d:8a:d5:45:4e:59:2c:03:f7:01:a8"]
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+      - run:
+          name: Configure server
+          command: |
+            ansible-playbook -i inventory.txt configure-server.yml
+      - run:
+          name: Configure environment variables
+          command: |
+            echo $ENVIRONMENT
+            echo $TYPEORM_CONNECTION
+            echo $TYPEORM_ENTITIES
+            echo $TYPEORM_HOST
+            echo $TYPEORM_PORT
+          environment:
+            ENVIRONMENT: production
+            TYPEORM_CONNECTION: postgres
+            TYPEORM_ENTITIES: ./src/modules/domain/**/*.entity.ts
+            TYPEORM_HOST: udapeopleprod.ceoufwkkeobm.us-east-1.rds.amazonaws.com
+            TYPEORM_PORT: 5532
+
       # Here's where you will add some code to rollback on failure      
 
-#  configure-infrastructure:
-#    docker:
-#      # Docker image here that supports Ansible
-#    steps:
-#      # Checkout code from git
-#      # Add ssh keys with fingerprint
-#      # attach workspace
-#      - run:
-#          name: Install dependencies
-#          command: |
-#            # Your code here
-#            exit 1
-#      - run:
-#          name: Configure server
-#          command: |
-#            # Your code here
-#            exit 1
-#      # Here's where you will add some code to rollback on failure      
-#
-#  run-migrations:
-#    docker:
-#      # Docker image here that supports NodeJS
-#    steps:
-#      # Checkout code from git
-#      - run:
-#          name: Run migrations
-#          command: |
-#            # Your code here
-#            exit 1
-#      - run:
-#          name: Send migration results to memstash
-#          command: |
-#            # Your code here
-#            exit 1
-#     # Here's where you will add some code to rollback on failure      
-#
+  run-migrations:
+    docker:
+      # Docker image here that supports NodeJS
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: Run migrations
+          command: |
+            cd backend
+            npm i
+            npm run migrations
+
+      - run:
+          name: Send migration results to memstash
+          command: |
+            # Your code here
+            exit 1
+     # Here's where you will add some code to rollback on failure      
+
 #  deploy-frontend:
 #    docker:
 #      # Docker image here that supports AWS CLI
