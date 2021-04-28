@@ -244,6 +244,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
+            yum update
             yum install npm
             cd frontend
             npm install
@@ -352,18 +353,18 @@ workflows:
 #          requires: [build-backend]
 #      - scan-frontend:
 #          requires: [build-frontend]
-      - deploy-infrastructure:
+##      - deploy-infrastructure:
 #          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-         filters:
-            branches:
+#         filters:
+#            branches:
 #              only:  [test-feature-branch]
-               only:  [master]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
+##              only:  [master]
+##      - configure-infrastructure:
+##          requires: [deploy-infrastructure]
+##      - run-migrations:
+##          requires: [configure-infrastructure]
       - deploy-frontend:
-          requires: [run-migrations]
+##          requires: [run-migrations]
 #      - deploy-backend:
 #          requires: [run-migrations]
 #      - smoke-test:
