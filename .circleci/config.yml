@@ -245,6 +245,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
+            yum install npm
             cd frontend
             npm install
       - run:
