@@ -262,24 +262,29 @@ jobs:
           command: |
              aws s3 cp ./frontend/dist/ "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
       # Here's where you will add some code to rollback on failure      
-#                    
-#  deploy-backend:
-#    docker:
-#      # Docker image here that supports Ansible
-#    steps:
-#      # Checkout code from git
-#      # Add ssh keys with fingerprint
-#      # attach workspace
-#      - run:
-#          name: Install dependencies
-#          command: |
-#            # your code here
-#      - run:
-#          name: Deploy backend
-#          command: |
-#            # your code here
-#      # Here's where you will add some code to rollback on failure  
-#
+                    
+  deploy-backend:
+    docker:
+      - image: python:3.9.4-alpine3.13
+    steps:
+      - checkout
+      # Add ssh keys with fingerprint
+      # attach workspace
+      - attach_workspace:
+          at: ~/
+      - add_ssh_keys:
+          fingerprints: ["99:1b:da:1d:0e:9d:8a:d5:45:4e:59:2c:03:f7:01:a8"]
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+            npm i
+      - run:
+          name: Deploy backend
+          command: |
+            # your code here
+      # Here's where you will add some code to rollback on failure  
+
 #  smoke-test:
 #    docker:
 #      # Lightweight Docker image 
@@ -351,18 +356,18 @@ workflows:
 #          requires: [build-backend]
 #      - scan-frontend:
 #          requires: [build-frontend]
-##      - deploy-infrastructure:
+      - deploy-infrastructure:
 #          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
 #         filters:
 #            branches:
 #              only:  [test-feature-branch]
-##              only:  [master]
-##      - configure-infrastructure:
-##          requires: [deploy-infrastructure]
-##      - run-migrations:
-##          requires: [configure-infrastructure]
-      - deploy-frontend #:
-##          requires: [run-migrations]
+              only:  [master]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
 #      - deploy-backend:
 #          requires: [run-migrations]
 #      - smoke-test:
