@@ -4,6 +4,6 @@
   shell: mkdir ~/backend/
 
 - name: "configuration play." 
-    - copy:
-        src: ~/backend/dist/
-        dest: ~/backend/
+  copy:
+    src: ~/backend/dist/
+    dest: ~/backend/
