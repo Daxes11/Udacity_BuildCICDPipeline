@@ -274,8 +274,6 @@ jobs:
       - image: python:3.9.4-alpine3.13
     steps:
       - checkout
-      # Add ssh keys with fingerprint
-      # attach workspace
       - attach_workspace:
           at: ~/
       - add_ssh_keys:
@@ -284,6 +282,7 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update ansible
+            apk add --update npm
             npm i
       - run:
           name: Deploy backend
