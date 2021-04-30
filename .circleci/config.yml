@@ -282,7 +282,7 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update ansible
-            apk add --update npm
+            apk add --update nodejs nodejs-npm
             npm i
       - run:
           name: Deploy backend
