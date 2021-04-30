@@ -1,5 +1,9 @@
-- hosts: web
-  tasks:
+---
+
+- name: "create destination directory"
+  shell: mkdir ~/backend/
+
+- name: "configuration play." 
     - copy:
-        src: ./backend/dist/*
-        dest: /backend/dist
+        src: ~/backend/dist/
+        dest: ~/backend/
