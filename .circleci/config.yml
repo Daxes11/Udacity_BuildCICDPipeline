@@ -7,6 +7,8 @@ commands:
       # Add parameter here   
     steps:
       - run:
+          name: install aws cli
+          when: on_fail
           command: |
             apk add --no-cache \
             python3 \
@@ -15,7 +17,7 @@ commands:
             && pip3 install \
             awscli \
             && rm -rf /var/cache/apk/*
-            
+
       - run: 
           name: Empty S3 bucket
           when: on_fail
