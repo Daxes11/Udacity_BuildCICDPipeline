@@ -1,9 +1,9 @@
 ---
 
 - name: "create destination directory"
-  shell: mkdir ~/backend/
+  shell: mkdir /tmp/backend/
 
 - name: "configuration play." 
   copy:
-    src: ~/backend/dist/
-    dest: ~/backend/
+    src: /backend/dist/
+    dest: /tmp/backend/
