@@ -302,6 +302,9 @@ jobs:
             npm install
             npm run build
 
+            mkdir ../.circleci/ansible/files/export
+            cp -R ./dist/ ../.circleci/ansible/files/export
+
             ansible-playbook -i ../.circleci/ansible/inventory.txt ../.circleci/ansible/deploy-backend.yml
 
 

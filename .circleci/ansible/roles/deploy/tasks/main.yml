@@ -5,5 +5,5 @@
 
 - name: "configuration play." 
   copy:
-    src: /backend/dist/
+    src: ./export
     dest: /tmp/udacity/
