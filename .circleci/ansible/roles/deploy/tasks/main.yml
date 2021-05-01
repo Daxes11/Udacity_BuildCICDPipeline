@@ -1,9 +1,9 @@
 ---
 
 - name: "create destination directory"
-  shell: mkdir /tmp/backend/
+  shell: mkdir /tmp/udacity/
 
 - name: "configuration play." 
   copy:
     src: /backend/dist/
-    dest: /tmp/backend/
+    dest: /tmp/udacity/
