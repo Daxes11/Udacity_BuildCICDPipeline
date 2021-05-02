@@ -9,7 +9,7 @@
 - name: "configuration play"
   become: yes
   unarchive:
-    src: ../../backend/app.tar.gz
+    src: /../../../../backend/app.tar.gz
     dest: /tmp/udapeople/
 
 - name: "Run backend"
