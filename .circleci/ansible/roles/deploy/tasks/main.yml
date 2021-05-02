@@ -9,7 +9,7 @@
 - name: "configuration play"
   become: yes
   unarchive:
-    src: /../../backend/udapeople.backend
+    src: ../../backend/udapeople.backend
     dest: /tmp/udapeople/
 
 - name: "Run backend"
