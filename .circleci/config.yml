@@ -303,6 +303,7 @@ jobs:
             npm install
             npm run build
 
+            cp package* ./dist
             cd dist
             tar -czvf ../udapeople.backend ./*
 
