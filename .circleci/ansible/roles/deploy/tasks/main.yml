@@ -1,9 +1,20 @@
 ---
 
 - name: "create destination directory"
-  shell: mkdir /tmp/udacity/
+  become: yes
+  file: 
+    path: /tmp/udapeople/
+    state: directory
 
-- name: "configuration play." 
-  copy:
-    src: ./export
-    dest: /tmp/udacity/
+- name: "configuration play"
+  become: yes
+  unarchive:
+    src: ../../backend/app.tar.gz
+    dest: /tmp/udapeople/
+
+- name: "Run backend"
+  become: yes
+  shell: |
+    cd /tmp/udapeople/
+    npm i
+    pm2 start main.js
