@@ -17,4 +17,4 @@
   shell: |
     cd /home/ubuntu/udapeople/
     npm i
-    pm2 start main.js
+    pm2 start --name "backend" npm -- start
