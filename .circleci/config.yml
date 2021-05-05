@@ -17,7 +17,6 @@ commands:
             && pip3 install \
             awscli \
             && rm -rf /var/cache/apk/*
-
       - run: 
           name: Empty S3 bucket
           when: on_fail
@@ -41,18 +40,19 @@ commands:
           # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = 1
+            SUCCESS="curl -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request GET https://api.memstash.io/values/${CIRCLE_WORKFLOW_ID:0:7}"
             if(( $SUCCESS==1 )); 
             then
-            #  cd ~/project/backend
-            #  npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
+              cd ~/project/backend
+              npm install
+              npm run migrations:revert
             fi
+
 
 orbs:
   slack: circleci/slack@3.4.2
-            
+
+
 jobs:
   build-frontend:
     docker:
@@ -70,6 +70,7 @@ jobs:
           paths: [frontend/node_modules]
           key: frontend-build
 
+
   build-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -80,11 +81,12 @@ jobs:
       - run:
           name: Back-end build
           command: |
-             cd backend
-             npm run build
+            cd backend
+            npm run build
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
+
 
   test-frontend:
     docker:
@@ -100,6 +102,7 @@ jobs:
             npm install oauth-sign
             npm run test
 
+
   test-backend:
     docker:
       - image: circleci/node:stretch
@@ -110,9 +113,10 @@ jobs:
       - run:
           name: Test Back-end
           command: |
-              cd backend
-              npm run test
+             cd backend
+             npm run test
             
+
   scan-frontend:
     docker:
       - image: circleci/node:stretch
@@ -130,6 +134,7 @@ jobs:
           fail_only: true
           mentions: "circleci"
 
+
   scan-backend:
     docker:
       - image: circleci/node:stretch
@@ -146,6 +151,7 @@ jobs:
       - slack/status:
           fail_only: true
           mentions: "circleci"
+
 
   deploy-infrastructure:
     docker:
@@ -178,12 +184,17 @@ jobs:
             PublicDNS=$(curl -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request GET https://api.memstash.io/values/PublicDNS)
             echo $PublicDNS >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
-      - run: yum install tar gzip -y
+      - run:
+          name: Install missing packages
+          command: |
+           yum install tar gzip -y
       - persist_to_workspace:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-#      # Here's where you will add some code to rollback on failure   
+
+#      # Here's where you will add some code to rollback on failure  
+#      - destroy-environment 
 
 
   configure-infrastructure:
@@ -220,7 +231,8 @@ jobs:
             TYPEORM_PORT: 5432
             TYPEORM_DATABASE: udapeopleprod
 
-      # Here's where you will add some code to rollback on failure      
+#     # Here's where you will add some code to rollback on failure  
+#     - destroy-environment          
 
   run-migrations:
     docker:
@@ -233,7 +245,6 @@ jobs:
             cd backend
             npm i
             npm run migrations > migrations-output.txt
-
       - run:
           name: Send migration results to memstash
           command: |
@@ -243,7 +254,8 @@ jobs:
             else curl -H "Content-Type: text/plain" -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request PUT --data "-1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7};
             fi
 
-     # Here's where you will add some code to rollback on failure      
+#     # Here's where you will add some code to rollback on failure      
+#     - destroy-environment  
 
   deploy-frontend:
     docker:
@@ -253,8 +265,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            cd frontend
-            npm install
+           cd frontend
+           npm install
       - run:
           name: Get backend url
           command: |
@@ -270,7 +282,9 @@ jobs:
           name: Copy files to S3 frontend bucket
           command: |
              aws s3 cp ./frontend/dist/ "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
-      # Here's where you will add some code to rollback on failure      
+
+#     # Here's where you will add some code to rollback on failure
+#     - destroy-environment        
                     
   deploy-backend:
     docker:
@@ -300,11 +314,10 @@ jobs:
             tar -czvf ../udapeople.backend ./*
 
             ansible-playbook -i ../../.circleci/ansible/inventory.txt ../../.circleci/ansible/deploy-backend.yml
-
-
-            
-      # Here's where you will add some code to rollback on failure
+ 
+#      # Here's where you will add some code to rollback on failure
 #      - destroy-environment 
+
 
   smoke-test:
     docker:
@@ -319,14 +332,12 @@ jobs:
           name: Get backend url
           command: |
             BACKEND_IP=$(curl -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request GET https://api.memstash.io/values/PublicDNS)
-            export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
       - run:
           name: Backend smoke test.
           command: |
             STATUS_URL="https://${BACKEND_IP}/api/status"
 
-            if curl -s ${STATUS_URL} | grep "error"
+            if curl -s ${STATUS_URL} | grep "\"status\":\"ok\""
             then
             return 1
             else
@@ -343,7 +354,10 @@ jobs:
             else
             return 0
             fi
-      # Here's where you will add some code to rollback on failure  
+
+#     # Here's where you will add some code to rollback on failure 
+#     - destroy-environment   
+
 
 #  cloudfront-update:
 #    docker:
@@ -360,7 +374,8 @@ jobs:
 #          command: |
 #            # your code here
 #      # Here's where you will add some code to rollback on failure  
-#
+#      - destroy-environment  
+
 #cleanup:
 #    docker:
 #      # Docker image here
