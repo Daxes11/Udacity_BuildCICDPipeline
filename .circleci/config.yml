@@ -320,10 +320,7 @@ jobs:
             npm install
             npm run build
 
-            cp package* ./dist
-            cp src/main* ./dist/src
-            cd dist
-            tar -czvf ../udapeople.backend ./*
+            tar -czvf udapeople.backend ./*
 
             ansible-playbook -i ../../.circleci/ansible/inventory.txt ../../.circleci/ansible/deploy-backend.yml
  
@@ -431,12 +428,12 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
+#      - deploy-frontend:
+#          requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
+#      - smoke-test:
+#          requires: [deploy-backend, deploy-frontend]
 #      - cloudfront-update:
 #          requires: [smoke-test]
 #      - cleanup:
