@@ -320,7 +320,8 @@ jobs:
             npm install
             npm run build
 
-            tar -czvf udapeople.backend ./*
+            cd dist
+            tar -czvf ../udapeople.backend ./*
 
             ansible-playbook -i ../../.circleci/ansible/inventory.txt ../../.circleci/ansible/deploy-backend.yml
  
