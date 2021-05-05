@@ -321,7 +321,7 @@ jobs:
             npm run build
 
             cp package* ./dist
-            cp src/main* ./dist/src
+            cp -R src/main* ./dist/src
             cd dist
             tar -czvf ../udapeople.backend ./*
 
