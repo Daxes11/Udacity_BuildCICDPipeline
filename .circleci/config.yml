@@ -40,7 +40,7 @@ commands:
           # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS="curl -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request GET https://api.memstash.io/values/${CIRCLE_WORKFLOW_ID:0:7}"
+            SUCCESS=$(curl -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request GET https://api.memstash.io/values/${CIRCLE_WORKFLOW_ID:0:7})
             if(( $SUCCESS==1 )); 
             then
               cd ~/project/backend
@@ -209,27 +209,38 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible
+            apk add --update ansible  
+      - run:
+          name: Configure environment variables
+          command: |
+            echo ENVIRONMENT=production > "backend/.env"
+            echo TYPEORM_CONNECTION=postgres >> "backend/.env"
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
+            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
+            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
+            echo NODE_ENV=production >> "backend/.env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
+#            echo $ENVIRONMENT
+#            echo $TYPEORM_CONNECTION
+#            echo $TYPEORM_ENTITIES
+#            echo $TYPEORM_HOST
+#            echo $TYPEORM_PORT
+#            echo $TYPEORM_DATABASE
+#          environment:
+#            ENVIRONMENT: production
+#            TYPEORM_CONNECTION: postgres
+#            TYPEORM_ENTITIES: ./src/modules/domain/**/*.entity.ts
+#            TYPEORM_HOST: udapeopleprod.ceoufwkkeobm.us-east-1.rds.amazonaws.com
+#            TYPEORM_PORT: 5432
+#            TYPEORM_DATABASE: udapeopleprod
       - run:
           name: Configure server
           command: |
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
-      - run:
-          name: Configure environment variables
-          command: |
-            echo $ENVIRONMENT
-            echo $TYPEORM_CONNECTION
-            echo $TYPEORM_ENTITIES
-            echo $TYPEORM_HOST
-            echo $TYPEORM_PORT
-            echo $TYPEORM_DATABASE
-          environment:
-            ENVIRONMENT: production
-            TYPEORM_CONNECTION: postgres
-            TYPEORM_ENTITIES: ./src/modules/domain/**/*.entity.ts
-            TYPEORM_HOST: udapeopleprod.ceoufwkkeobm.us-east-1.rds.amazonaws.com
-            TYPEORM_PORT: 5432
-            TYPEORM_DATABASE: udapeopleprod
 
 #     # Here's where you will add some code to rollback on failure  
 #     - destroy-environment          
@@ -310,6 +321,7 @@ jobs:
             npm run build
 
             cp package* ./dist
+            cp src/main* ./dist/src
             cd dist
             tar -czvf ../udapeople.backend ./*
 

@@ -3,18 +3,18 @@
 - name: "create destination directory"
   become: yes
   file: 
-    path: /tmp/udapeople/
+    path: /home/ubuntu/udapeople/
     state: directory
 
 - name: "configuration play"
   become: yes
   unarchive:
     src: ../../backend/udapeople.backend
-    dest: /tmp/udapeople/
+    dest: /home/ubuntu/udapeople/
 
 - name: "Run backend"
   become: yes
   shell: |
-    cd /tmp/udapeople/
+    cd /home/ubuntu/udapeople/
     npm i
     pm2 start main.js
