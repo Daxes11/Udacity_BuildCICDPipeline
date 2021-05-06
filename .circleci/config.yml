@@ -307,6 +307,8 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/
+      - restore_cache:
+          key: backend-build
       - add_ssh_keys:
           fingerprints: ["99:1b:da:1d:0e:9d:8a:d5:45:4e:59:2c:03:f7:01:a8"]
       - run:
@@ -320,7 +322,8 @@ jobs:
           name: Deploy backend
           command: |
             cd backend
-
+            npm i
+            npm run build
             cd dist
             tar -czvf ../udapeople.backend ./*
 
