@@ -128,7 +128,7 @@ jobs:
           name: Scan Front-end
           command: |
               cd frontend
-              npm audit fix --audit-level=critical --force
+              npm audit fix --audit-level=critical
               npm audit --audit-level=critical
       - slack/status:
           fail_only: true
@@ -146,7 +146,7 @@ jobs:
           name: Scan Back-end
           command: |
               cd backend
-              npm audit fix --audit-level=critical --force
+              npm audit fix --audit-level=critical
               npm audit --audit-level=critical
       - slack/status:
           fail_only: true
@@ -214,6 +214,7 @@ jobs:
           name: Configure environment variables
           command: |
             echo ENVIRONMENT=production > "backend/.env"
+            echo NODE_ENV=production 
             echo TYPEORM_CONNECTION=postgres >> "backend/.env"
             echo TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js} >> "backend/.env"
             echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
@@ -317,8 +318,8 @@ jobs:
           name: Deploy backend
           command: |
             cd backend
-            npm install
-            npm run build
+            sudo npm install
+            sudo npm run build
 
             cd dist
             tar -czvf ../udapeople.backend ./*
