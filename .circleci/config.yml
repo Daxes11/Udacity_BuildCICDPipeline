@@ -321,7 +321,6 @@ jobs:
           command: |
             cd backend
 
-            cp package* ./dist
             cd dist
             tar -czvf ../udapeople.backend ./*
 
