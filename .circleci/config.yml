@@ -197,6 +197,7 @@ jobs:
 
 #      # Here's where you will add some code to rollback on failure  
 #      - destroy-environment 
+#      - revert-migrations
 
 
   configure-infrastructure:
@@ -246,7 +247,8 @@ jobs:
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
 
 #     # Here's where you will add some code to rollback on failure  
-#     - destroy-environment          
+#     - destroy-environment 
+#     - revert-migrations         
 
   run-migrations:
     docker:
@@ -270,6 +272,7 @@ jobs:
 
 #     # Here's where you will add some code to rollback on failure      
 #     - destroy-environment  
+#     - revert-migrations
 
   deploy-frontend:
     docker:
@@ -298,7 +301,8 @@ jobs:
              aws s3 cp ./frontend/dist/ "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
 
 #     # Here's where you will add some code to rollback on failure
-#     - destroy-environment        
+#     - destroy-environment
+#     - revert-migrations    
                     
   deploy-backend:
     docker:
@@ -330,7 +334,8 @@ jobs:
             ansible-playbook -i ../../.circleci/ansible/inventory.txt ../../.circleci/ansible/deploy-backend.yml
  
 #      # Here's where you will add some code to rollback on failure
-#      - destroy-environment 
+#      - destroy-environment
+#      - revert-migrations
 
 
   smoke-test:
@@ -353,9 +358,9 @@ jobs:
 
             if curl -s ${STATUS_URL} | grep "\"status\":\"ok\""
             then
-            return 1
-            else
             return 0
+            else
+            return 1
             fi
       - run:
           name: Frontend smoke test.
@@ -364,31 +369,33 @@ jobs:
 
             if curl -s ${FRONTEND_URL} | grep "Welcome"
             then
-            return 1
-            else
             return 0
+            else
+            return 1
             fi
 
 #     # Here's where you will add some code to rollback on failure 
-#     - destroy-environment   
+#     - destroy-environment
+#     - revert-migrations
 
 
-#  cloudfront-update:
-#    docker:
-#      # Docker image here that supports AWS CLI
-#    steps:
-#      # Checkout code from git
-#      - checkout
-#      - run:
-#          name: Install dependencies
-#          command: |
-#            # your code here
-#      - run:
-#          name: Update cloudfront distribution
-#          command: |
-#            # your code here
-#      # Here's where you will add some code to rollback on failure  
-#      - destroy-environment  
+  cloudfront-update:
+    docker:
+      - image: sleavely/node-awscli:14.x
+    steps:
+      # Checkout code from git
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            # your code here
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            # your code here
+      # Here's where you will add some code to rollback on failure  
+      - destroy-environment
+      - revert-migrations
 
 #cleanup:
 #    docker:
@@ -413,8 +420,8 @@ jobs:
 workflows:
   default:
     jobs:
-#      - build-frontend
-#      - build-backend
+      - build-frontend
+      - build-backend
 #      - test-frontend:
 #          requires: [build-frontend]
 #      - test-backend:
