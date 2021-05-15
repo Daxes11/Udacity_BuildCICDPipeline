@@ -308,11 +308,12 @@ jobs:
             apk add --update ansible
             apk add --update nodejs nodejs-npm
             apk add --update tar gzip curl
-            npm i
       - run:
           name: Deploy backend
           command: |
             cd backend
+            npm i
+            npm run build
             tar -czvf udapeople.backend ./*
 
             ansible-playbook -i ../.circleci/ansible/inventory.txt ../.circleci/ansible/deploy-backend.yml
