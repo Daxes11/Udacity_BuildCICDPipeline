@@ -217,7 +217,6 @@ jobs:
           name: Configure environment variables
           command: |
             echo ENVIRONMENT=production > "backend/.env"
-            echo NODE_ENV=production 
             echo TYPEORM_CONNECTION=postgres >> "backend/.env"
             echo TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js} >> "backend/.env"
             echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
