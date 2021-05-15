@@ -228,19 +228,6 @@ jobs:
             echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
-#            echo $ENVIRONMENT
-#            echo $TYPEORM_CONNECTION
-#            echo $TYPEORM_ENTITIES
-#            echo $TYPEORM_HOST
-#            echo $TYPEORM_PORT
-#            echo $TYPEORM_DATABASE
-#          environment:
-#            ENVIRONMENT: production
-#            TYPEORM_CONNECTION: postgres
-#            TYPEORM_ENTITIES: ./src/modules/domain/**/*.entity.ts
-#            TYPEORM_HOST: udapeopleprod.ceoufwkkeobm.us-east-1.rds.amazonaws.com
-#            TYPEORM_PORT: 5432
-#            TYPEORM_DATABASE: udapeopleprod
       - run:
           name: Configure server
           command: |
@@ -320,18 +307,15 @@ jobs:
           command: |
             apk add --update ansible
             apk add --update nodejs nodejs-npm
-            apk add --update tar gzip
+            apk add --update tar gzip curl
             npm i
       - run:
           name: Deploy backend
           command: |
             cd backend
-            npm i
-            npm run build
-            cd dist
-            tar -czvf ../udapeople.backend ./*
+            tar -czvf udapeople.backend ./*
 
-            ansible-playbook -i ../../.circleci/ansible/inventory.txt ../../.circleci/ansible/deploy-backend.yml
+            ansible-playbook -i ../.circleci/ansible/inventory.txt ../.circleci/ansible/deploy-backend.yml
  
 #      # Here's where you will add some code to rollback on failure
 #      - destroy-environment
