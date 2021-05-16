@@ -318,7 +318,8 @@ jobs:
             cd backend
             npm i
             npm run build
-            tar -vczf udapeople.backend ./{,.}*
+            shopt  -s dotglob
+            tar -vczf udapeople.backend *
 
             ansible-playbook -i ../.circleci/ansible/inventory.txt ../.circleci/ansible/deploy-backend.yml
  
