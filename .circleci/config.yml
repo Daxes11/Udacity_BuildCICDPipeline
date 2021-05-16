@@ -37,7 +37,7 @@ commands:
     steps:
       - run:
           name: Revert migrations
-          # Add when this will run
+          when: on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             SUCCESS=$(curl -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request GET https://api.memstash.io/values/${CIRCLE_WORKFLOW_ID:0:7})
@@ -68,7 +68,7 @@ jobs:
             npm install
             npm run build
       - save_cache:
-          paths: [frontend/node_modules]
+          paths: [frontend/]
           key: frontend-build
 
 
@@ -86,7 +86,7 @@ jobs:
             npm install
             npm run build
       - save_cache:
-          paths: [backend/node_modules]
+          paths: [backend/]
           key: backend-build
 
 
@@ -231,6 +231,10 @@ jobs:
           name: Configure server
           command: |
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/backend/
 
 #     # Here's where you will add some code to rollback on failure  
 #     - destroy-environment 
@@ -311,20 +315,6 @@ jobs:
           name: Deploy backend
           command: |
             cd backend
-            touch .env
-
-            echo ENVIRONMENT=production > ".env"
-            echo TYPEORM_CONNECTION=postgres >> ".env"
-            echo TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js} >> ".env"
-            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> ".env"
-            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> ".env"
-            echo NODE_ENV=production >> ".env"
-            echo TYPEORM_HOST=$TYPEORM_HOST >> ".env"
-            echo TYPEORM_PORT=$TYPEORM_PORT >> ".env"
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ".env"
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ".env"
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ".env"
-
             npm i
             npm run build
             tar -czvf udapeople.backend ./*
@@ -432,8 +422,8 @@ workflows:
 #          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
          filters:
             branches:
-#              only:  [test-feature-branch]
-              only:  [master]
+              only:  [master]            
+#             only:  [test-feature-branch]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:
