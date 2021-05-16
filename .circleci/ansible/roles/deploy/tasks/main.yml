@@ -17,7 +17,7 @@
   become: yes
   command: sudo pm2 start npm --no-automation --name "backend" -- run start
   args:
-    chdir: /home/ubuntu/udapeople/dist
+    chdir: /home/ubuntu/udapeople/backend/dist
   environment:
     ENVIRONMENT: production
     TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
