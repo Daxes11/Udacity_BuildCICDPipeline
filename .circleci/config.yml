@@ -315,10 +315,6 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            cd backend
-            npm i
-            npm run build
-            cd ..
             tar -vczf udapeople.backend ./backend/
 
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
@@ -344,7 +340,7 @@ jobs:
       - run:
           name: Backend smoke test.
           command: |
-            STATUS_URL="https://${BACKEND_IP}/api/status"
+            STATUS_URL="http://${BACKEND_IP}:3030/api/status"
 
             if curl -s ${STATUS_URL} | grep "\"status\":\"ok\""
             then
