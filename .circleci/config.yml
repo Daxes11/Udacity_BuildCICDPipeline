@@ -377,8 +377,8 @@ jobs:
             fi
 
 #     # Here's where you will add some code to rollback on failure 
-     - destroy-environment
-     - revert-migrations
+    - destroy-environment
+    - revert-migrations
 
 
   cloudfront-update:
@@ -432,7 +432,8 @@ workflows:
       - scan-frontend:
           requires: [build-frontend]
       - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+#          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          requires: [build-frontend, build-backend]
           filters:
             branches:
               only:  [master]            
