@@ -351,17 +351,6 @@ jobs:
           command: |
             BACKEND_IP=$(curl -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request GET https://api.memstash.io/values/PublicDNS)
       - run:
-          name: Backend smoke test.
-          command: |
-            STATUS_URL="http://${BACKEND_IP}:3030/api/status"
-
-            if curl -s ${STATUS_URL} | grep "\"status\":\"ok\""
-            then
-            echo "Backend OK"
-            else
-            exit 1
-            fi
-      - run:
           name: Frontend smoke test.
           command: |
             FRONTEND_URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com"
@@ -372,6 +361,18 @@ jobs:
             else
             return 0
             fi
+      - run:
+          name: Backend smoke test.
+          command: |
+            STATUS_URL="http://${BACKEND_IP}:3030/api/status"
+
+            if curl -s ${STATUS_URL} | grep "\"status\":\"ok\""
+            then
+            echo "Backend OK"
+            else
+            exit 1
+            fi
+
 
 #     # Here's where you will add some code to rollback on failure 
       - destroy-environment
