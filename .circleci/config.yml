@@ -67,11 +67,6 @@ jobs:
             cd frontend
             npm install
             npm run build
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/frontend/node_modules
-            - project/frontend/dist
       - save_cache:
           paths: 
             - frontend/node_modules
@@ -92,11 +87,6 @@ jobs:
             cd backend
             npm install
             npm run build
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/backend/node_modules
-            - project/backend/dist
       - save_cache:
           paths: 
             - backend/node_modules
@@ -146,11 +136,6 @@ jobs:
               cd frontend
               npm audit fix --audit-level=critical
               npm audit --audit-level=critical
-      - save_cache:
-          paths: 
-            - frontend/node_modules
-            - frontend/dist
-          key: frontend-build
       - slack/status:
           fail_only: true
           mentions: "circleci"
@@ -169,11 +154,6 @@ jobs:
               cd backend
               npm audit fix --audit-level=critical
               npm audit --audit-level=critical
-      - save_cache:
-          paths: 
-            - backend/node_modules
-            - backend/dist
-          key: backend-build
       - slack/status:
           fail_only: true
           mentions: "circleci"
@@ -303,6 +283,7 @@ jobs:
           command: |
            cd frontend
            npm install
+           npm run build
       - run:
           name: Get backend url
           command: |
@@ -343,6 +324,10 @@ jobs:
       - run:
           name: Deploy backend
           command: |
+            cd backend
+            npm i
+            npm run build
+            cd ..
             tar -vczf udapeople.backend ./backend/
 
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
