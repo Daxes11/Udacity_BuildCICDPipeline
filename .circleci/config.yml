@@ -283,18 +283,17 @@ jobs:
           command: |
            cd frontend
            npm install
-           npm run build
       - run:
           name: Get backend url
           command: |
             BACKEND_IP=$(curl -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request GET https://api.memstash.io/values/PublicDNS)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
-#      - run:
-#          name: Deploy frontend objects
-#          command: |
-#            cd frontend
-#            npm run build
+      - run:
+          name: Deploy frontend objects
+          command: |
+            cd frontend
+            npm run build
       - run: 
           name: Copy files to S3 frontend bucket
           command: |
@@ -351,17 +350,6 @@ jobs:
           command: |
             BACKEND_IP=$(curl -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request GET https://api.memstash.io/values/PublicDNS)
       - run:
-          name: Frontend smoke test.
-          command: |
-            FRONTEND_URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com"
-
-            if curl -s ${FRONTEND_URL} | grep "Welcome"
-            then
-            return 1
-            else
-            return 0
-            fi
-      - run:
           name: Backend smoke test.
           command: |
             STATUS_URL="http://${BACKEND_IP}:3030/api/status"
@@ -372,11 +360,20 @@ jobs:
             else
             exit 1
             fi
+      - run:
+          name: Frontend smoke test.
+          command: |
+            FRONTEND_URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com"
 
-
+            if curl -s ${FRONTEND_URL} | grep "Welcome"
+            then
+            echo "Frontend OK"
+            else
+            exit 1
+            fi
 #     # Here's where you will add some code to rollback on failure 
-      - destroy-environment
-      - revert-migrations
+#      - destroy-environment
+#      - revert-migrations
 
 
   cloudfront-update:
@@ -393,28 +390,35 @@ jobs:
           command: |
             # your code here
 #      # Here's where you will add some code to rollback on failure  
-#      - destroy-environment
-#      - revert-migrations
+#       - destroy-environment
+#       - revert-migrations
 
-#cleanup:
-#    docker:
-#      # Docker image here
-#    steps:
-#      # Checkout code from git
-#      - run:
-#          name: Get old stack workflow id
-#          command: |
-#            # your code here
-#            export OldWorkflowID="the id here"
-#            export STACKS=[] #put the list of stacks here
-#      - run:
-#          name: Remove old stacks and files
-#          command: |
-#            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-#            then
-#              # your code here
-#            fi
-#            
+cleanup:
+    docker:
+      # Docker image here
+    steps:
+      # Checkout code from git
+      - run:
+          name: Get old stack workflow id
+          command: |
+            export OldWorkflowID=$(aws cloudformation list-exports --no-paginate --query "Exports[?Name=='WorkflowID'].Value)
+            export STACKS=[] #put the list of stacks here
+      - run:
+          name: Remove old stacks and files
+          command: |
+            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+            then
+              # your code here
+            fi
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            aws cloudformation deploy \
+            --template-file .circleci/files/cloudfront.yml \
+            --tags project=UdaPeopleProject \
+            --stack-name "UdaPeopleProject" \
+            --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"
+            
 
 workflows:
   default:
