@@ -346,12 +346,9 @@ jobs:
           command: |
             apk add --update curl
       - run:
-          name: Get backend url
-          command: |
-            BACKEND_IP=$(curl -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request GET https://api.memstash.io/values/PublicDNS)
-      - run:
           name: Backend smoke test.
           command: |
+            BACKEND_IP=$(curl -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request GET https://api.memstash.io/values/PublicDNS)
             STATUS_URL="http://${BACKEND_IP}:3030/api/status"
 
             if curl -s ${STATUS_URL} | grep "\"status\":\"ok\""
