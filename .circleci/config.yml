@@ -429,7 +429,7 @@ jobs:
 #       - destroy-environment
 #       - revert-migrations
 
-cleanup:
+  cleanup:
     docker:
       - image: sleavely/node-awscli:14.x
     steps:
