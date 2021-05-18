@@ -304,10 +304,10 @@ jobs:
       - run:
           name: Deploy frontend objects
           command: |
-            cd frontend
             echo ENVIRONMENT=production > "frontend/.env"
             echo NODE_ENV=production >> "frontend/.env"
             echo API_URL="${API_URL}" >> "frontend/.env"
+            cd frontend
             npm run build
       - run: 
           name: Copy files to S3 frontend bucket
