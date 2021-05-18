@@ -252,9 +252,6 @@ jobs:
           root: ~/
           paths:
             - project/backend/
-      - slack/status:
-          fail_only: true
-          mentions: "circleci"
 
 #     # Here's where you will add some code to rollback on failure  
 #     - destroy-environment 
@@ -279,9 +276,6 @@ jobs:
             then curl -H "Content-Type: text/plain" -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}; 
             else curl -H "Content-Type: text/plain" -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request PUT --data "-1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7};
             fi
-      - slack/status:
-          fail_only: true
-          mentions: "circleci"
 
 #     # Here's where you will add some code to rollback on failure      
 #     - destroy-environment  
@@ -319,9 +313,6 @@ jobs:
           name: Copy files to S3 frontend bucket
           command: |
              aws s3 cp ./frontend/dist/ "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
-      - slack/status:
-          fail_only: true
-          mentions: "circleci"
 
 #     # Here's where you will add some code to rollback on failure
 #     - destroy-environment
@@ -354,9 +345,6 @@ jobs:
             tar -vczf udapeople.backend ./backend/
 
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
-      - slack/status:
-          fail_only: true
-          mentions: "circleci"
 
 #      # Here's where you will add some code to rollback on failure
 #      - destroy-environment
@@ -395,9 +383,6 @@ jobs:
             else
             exit 1
             fi
-      - slack/status:
-          fail_only: true
-          mentions: "circleci"
 
 #     # Here's where you will add some code to rollback on failure 
 #      - destroy-environment
@@ -421,9 +406,6 @@ jobs:
             --tags project=UdaPeopleProject \
             --stack-name "UdaPeopleProject" \
             --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"
-      - slack/status:
-          fail_only: true
-          mentions: "circleci"
 
 #      # Here's where you will add some code to rollback on failure  
 #       - destroy-environment
@@ -454,9 +436,6 @@ jobs:
               aws cloudformation delete-stack --stack-name "UdaPeopleProjectBackend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "UdaPeopleProjectFrontend-${OldWorkflowID}"
             fi
-      - slack/status:
-          fail_only: true
-          mentions: "circleci"
         
 
 workflows:
