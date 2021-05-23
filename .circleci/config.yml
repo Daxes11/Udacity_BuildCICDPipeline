@@ -1,5 +1,4 @@
 version: 2.1
-<<<<<<< HEAD
 
 commands:
   destroy-environment:
@@ -469,11 +468,3 @@ workflows:
           requires: [smoke-test]
       - cleanup:
           requires: [cloudfront-update]
-=======
-orbs:
-  node: circleci/node@3.0.0
-workflows:
-  node-tests:
-    jobs:
-      - node/test
->>>>>>> origin/circleci-project-setup
