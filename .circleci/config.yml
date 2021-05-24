@@ -296,14 +296,12 @@ jobs:
            cd frontend
            npm install
       - run:
-          name: Get backend url
+          name: Deploy frontend objects
           command: |
             BACKEND_IP=$(curl -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request GET https://api.memstash.io/values/PublicDNS)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
-      - run:
-          name: Deploy frontend objects
-          command: |
+
             echo ENVIRONMENT=production > "frontend/.env"
             echo NODE_ENV=production >> "frontend/.env"
             echo "${API_URL}" >> "frontend/.env"
