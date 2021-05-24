@@ -400,11 +400,9 @@ jobs:
             export OldWorkflowID=$(aws cloudformation \
               list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
               --no-paginate --output text)
-            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-              --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
-
+            
+            curl -H "Content-Type: text/plain" -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request PUT --data "$OldWorkflowID" https://api.memstash.io/values/OldWorkflowID
             echo OldWorkflowID: "${OldWorkflowID}"  
-            echo Current Stacks:  "${STACKS}"
       - run:
           name: Update cloudfront distribution
           command: |
@@ -424,10 +422,16 @@ jobs:
     steps:
       - checkout
       - run:
-          echo OldWorkflowID: "${OldWorkflowID}"  
-          echo Current Stacks:  "${STACKS}"
           name: Remove old stacks and files
           command: |
+            OldWorkflowID=$(curl -H "token: 1b3cb2c9-8aaa-419a-8b3a-661b88e8ccea" --request GET https://api.memstash.io/values/OldWorkflowID)
+
+            STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+              --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
+            
+            echo OldWorkflowID: "${OldWorkflowID}"  
+            echo Current Stacks:  "${STACKS}"
+
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
               aws s3 rm s3://udapeople-${OldWorkflowID} --recursive
@@ -442,33 +446,32 @@ jobs:
 workflows:
   default:
     jobs:
-#      - build-frontend
-#      - build-backend
-##      - test-frontend:
-##          requires: [build-frontend]
-##      - test-backend:
-##          requires: [build-backend]
-##      - scan-backend:
-##          requires: [build-backend]
-##      - scan-frontend:
-##          requires: [build-frontend]
-#      - deploy-infrastructure:
-##          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-#          requires: [build-frontend, build-backend]
-#          filters:
-#            branches:
-#              only: [master]            
-#      - configure-infrastructure:
-#          requires: [deploy-infrastructure]
-#      - run-migrations:
-#          requires: [configure-infrastructure]
-      - deploy-frontend
-#          requires: [run-migrations]
-#      - deploy-backend:
-#          requires: [run-migrations]
-#      - smoke-test:
-#          requires: [deploy-backend, deploy-frontend]
-#      - cloudfront-update:
-#          requires: [smoke-test]
-#      - cleanup:
-#          requires: [cloudfront-update]
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [master]            
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update:
+          requires: [smoke-test]
+      - cleanup:
+          requires: [cloudfront-update]
