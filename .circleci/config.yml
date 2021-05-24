@@ -330,7 +330,7 @@ jobs:
       - restore_cache:
           key: backend-build
       - add_ssh_keys:
-          fingerprints: ["99:1b:da:1d:0e:9d:8a:d5:45:4e:59:2c:03:f7:01:a8"]
+          fingerprints: ["3a:b1:4d:af:ae:66:91:f1:fa:8a:37:09:78:40:57:3d"]
       - run:
           name: Install dependencies
           command: |
