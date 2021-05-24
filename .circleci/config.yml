@@ -224,7 +224,7 @@ jobs:
       - attach_workspace:
           at: ~/
       - add_ssh_keys:
-          fingerprints: ["99:1b:da:1d:0e:9d:8a:d5:45:4e:59:2c:03:f7:01:a8"]
+          fingerprints: ["0a:23:73:88:a0:0b:00:ec:57:04:5f:ea:60:46:c7:c8"]
       - run:
           name: Install dependencies
           command: |
@@ -454,6 +454,7 @@ workflows:
 #          requires: [build-frontend]
       - deploy-infrastructure:
 #          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+           requires: [build-frontend, build-backend]
           filters:
             branches:
               only: [master]            
